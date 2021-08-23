@@ -35,5 +35,20 @@ namespace BL
         public Review LeaveReview(Review review){
             return _repo.LeaveReview(review);
         }
+
+        public decimal AverageRating(Restaurant restaurant){
+            decimal avg;
+            decimal numReviews = 0;
+            decimal tot = 0;
+            List<Review> reviews = _repo.FindRatingsByRestaurantId(restaurant);
+            foreach(Review review in reviews)
+            {
+                tot += review.Stars;
+                numReviews += 1;
+            }
+            avg = tot/numReviews;
+            return avg;
+        }
+
     }
 }

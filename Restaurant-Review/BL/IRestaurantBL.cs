@@ -10,6 +10,6 @@ namespace BL
         Restaurant AddRestaurant(Restaurant restaurant);
         Review LeaveReview(Review review);
         Restaurant SearchRestaurantsName(string name);
-        //Restaurant ViewDetials();
+        decimal AverageRating(Restaurant restaurant);
     }
 }

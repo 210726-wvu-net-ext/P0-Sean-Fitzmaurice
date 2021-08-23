@@ -54,6 +54,17 @@ namespace DL
             return new Models.Restaurant();
         }
 
+        public List<Models.Review> FindRatingsByRestaurantId(Models.Restaurant restaurant){
+            List<Models.Review> list = _context.Reviews.Select(
+                Review => new Models.Review(Review.Id, Review.Stars, Review.CustomerId, Review.RestaurantId, Review.Comment)
+            ).ToList();
+            List<Models.Review> query = list.Where(Review => Review.RestaurantId == restaurant.Id).ToList();
+
+            return query;
+            
+        }
+        
+
         public Models.Customer SearchCustomers(string name)
         {
             Entities.Customer foundCustomer =  _context.Customers

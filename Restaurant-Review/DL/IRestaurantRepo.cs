@@ -16,6 +16,8 @@ namespace DL
         Customer SearchCustomers(string name);
 
         Review LeaveReview(Review review);
+
+        List<Review> FindRatingsByRestaurantId(Restaurant restaurant);
         
     }
 }
