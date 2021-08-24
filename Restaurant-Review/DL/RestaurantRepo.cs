@@ -63,6 +63,16 @@ namespace DL
             return query;
             
         }
+
+        public List<Models.Review> FindReviewsByCustomer(Models.Customer customer){
+            List<Models.Review> list = _context.Reviews.Select(
+                Review => new Models.Review(Review.Id, Review.Stars, Review.CustomerId, Review.RestaurantId, Review.Comment)
+            ).ToList();
+            List<Models.Review> query = list.Where(Review => Review.CustomerId == customer.Id).ToList();
+
+            return query;
+        }
+        
         
 
         public Models.Customer SearchCustomers(string name)
@@ -72,6 +82,17 @@ namespace DL
             if(foundCustomer!= null)
             {
                 return new Models.Customer(foundCustomer.Id, foundCustomer.Name, foundCustomer.Pass, foundCustomer.Phone, foundCustomer.Email, foundCustomer.IsAdmin);
+            }
+            return new Models.Customer();
+        }
+
+        public Models.Customer GetCustomerById(int Id)
+        {
+            Entities.Customer foundCustomer = _context.Customers
+                .FirstOrDefault(customer => customer.Id == Id);
+            if(foundCustomer != null)
+            {
+            return new Models.Customer(foundCustomer.Id, foundCustomer.Name, foundCustomer.Pass, foundCustomer.Phone, foundCustomer.Email, foundCustomer.IsAdmin);
             }
             return new Models.Customer();
         }

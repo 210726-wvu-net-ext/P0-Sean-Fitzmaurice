@@ -18,6 +18,10 @@ namespace DL
         Review LeaveReview(Review review);
 
         List<Review> FindRatingsByRestaurantId(Restaurant restaurant);
+
+        List<Review> FindReviewsByCustomer(Customer customer);
+        
+        Customer GetCustomerById(int Id);
         
     }
 }

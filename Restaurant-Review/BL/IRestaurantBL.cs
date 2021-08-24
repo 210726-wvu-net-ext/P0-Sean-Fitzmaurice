@@ -11,5 +11,8 @@ namespace BL
         Review LeaveReview(Review review);
         Restaurant SearchRestaurantsName(string name);
         decimal AverageRating(Restaurant restaurant);
+        List<Review> FindRatingsByRestaurantId(Restaurant restaurant);
+        List<Review> FindReviewsByCustomer(Customer customer);
+        Customer GetCustomerById(int Id);
     }
 }

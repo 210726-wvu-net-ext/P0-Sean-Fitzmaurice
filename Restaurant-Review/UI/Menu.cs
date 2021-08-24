@@ -51,7 +51,7 @@ namespace UI
                         if(this.CurrentCustomer.Admin == null)
                         {
                             repeat = true;
-                            Console.WriteLine("Not an admin! Sign in as a regular customer using 2");
+                            Console.WriteLine("\n***Not an admin! Sign in as a regular customer using 2***");
                         }else
                         {
                             isAdmin = true;
@@ -60,7 +60,7 @@ namespace UI
                     break;
 
                     default:
-                        Console.WriteLine("Not a valid command");
+                        Console.WriteLine("\n***Not a valid command***");
                         Console.WriteLine("*********************************************");
                     break;
                 }
@@ -82,20 +82,29 @@ namespace UI
                         break;
 
                         case "1":
+                            Console.WriteLine("Enter name of customer: ");
                             string name = Console.ReadLine();
                             Customer searchedCustomer = AdminCustomerSearch(name);
                             if(searchedCustomer.Name is null)
                             {
-                                Console.WriteLine($"{name}Not a username");
+                                Console.WriteLine($"\n***{name}Not a username***");
                             }else
                             {
-                                Console.WriteLine($"{searchedCustomer.Name}: \n Phone # {searchedCustomer.Phone} \n Email {searchedCustomer.Email}");
-
+                                Console.WriteLine($"{searchedCustomer.Name}: \nPhone: Number {searchedCustomer.Phone} \n Email: {searchedCustomer.Email}");
+                                List<Review> searchedCustomerReviews =_restaurantBL.FindReviewsByCustomer(searchedCustomer);
+                                Console.WriteLine("Most Recent Review:");
+                                PrintReview(searchedCustomerReviews[0], true);
+                                Console.WriteLine("Enter 1 to see all reviews from this customer, any other key input will return to admin menu");
+                                if(Console.ReadLine() == "1"){
+                                    foreach (Review review in searchedCustomerReviews){
+                                            PrintReview(review, true);
+                                    }
+                                }
                             }
                         break;
 
                         default:
-                            Console.WriteLine("Not a valid command");
+                            Console.WriteLine("\n***Not a valid command***");
                             Console.WriteLine("*********************************************");
                         break;
                     }
@@ -111,6 +120,7 @@ namespace UI
                     Console.WriteLine("[4] Search Restaurants by zip");
                     Console.WriteLine("[5] ");
                     Restaurant foundRestaurant;
+                    
                     switch(Console.ReadLine())
                     {
                         case "0":
@@ -124,7 +134,10 @@ namespace UI
 
                         case "2":
                             foundRestaurant = SearchRestaurantsName();
-                            restaurantMenu(foundRestaurant);
+                            if(foundRestaurant.Name != null){
+                                restaurantMenu(foundRestaurant);
+                            }
+                            
                         break;
 
                         case "3":
@@ -136,7 +149,7 @@ namespace UI
                         break;
 
                         default:
-                            Console.WriteLine("Not a valid command");
+                            Console.WriteLine("\n***Not a valid command***");
                             Console.WriteLine("*********************************************");
                         break;
                     }
@@ -161,12 +174,29 @@ namespace UI
                 Console.WriteLine(message);
                 input = Console.ReadLine();
                 if(String.IsNullOrWhiteSpace(input)){
-                    Console.WriteLine("\nEntry Cannot be blank\n");
+                    Console.WriteLine("\n***Entry Cannot be blank***");
                 }
             } while (String.IsNullOrWhiteSpace(input));
             return input;
         }
 
+        public void PrintReview(Review review, bool adminView)
+        {
+            Console.WriteLine("*********************************************\n");
+            if(adminView){
+                Console.WriteLine($"Review Id: {review.Id}");
+            }else
+            {
+                string Name = _restaurantBL.GetCustomerById(review.CustomerId).Name;
+                Console.WriteLine($"{Name} Says:");
+            }
+            
+            Console.WriteLine($"{decimal.Round(review.Stars,1)}/5 Stars");
+            if(review.textReview != null){
+                Console.WriteLine(review.textReview);
+            }
+            Console.WriteLine("\n*********************************************");
+        }
         //Adds new review to database, Creates Review object and passes it on to BL, Parameter restaurant is restaurant associated with review
         public void LeaveReview(Restaurant restaurant)
         {
@@ -196,13 +226,12 @@ namespace UI
         }
         
         //Search Restaurants by name, returns a restaurant object mapped to values in database
-        //TODO: in place of found {name} display information on restaurant
         public Restaurant SearchRestaurantsName()
         {
             string name = ValidInput("Enter name of Restaurant");
             Restaurant foundRestaurant = _restaurantBL.SearchRestaurantsName(name);
             if(foundRestaurant.Name is null){
-                Console.WriteLine($"Restaurant: {name} was not found, please try seaching again, or add a new restaurant with 2");
+                Console.WriteLine($"\n***Restaurant: {name} was not found, please try seaching again, or add a new restaurant with 2***");
             }else
             {
                 Console.WriteLine($"Found {name}");
@@ -277,7 +306,6 @@ namespace UI
         }
 
         //Admin search of a customer
-        //TODO display customer information and latest review
         public Customer AdminCustomerSearch(string name)
         {
 
@@ -288,10 +316,21 @@ namespace UI
         //Menu for once you find restaurant
         public void restaurantMenu(Restaurant restaurant){
             bool repeat = true;
+            List<Review> reviews;
+            reviews = _restaurantBL.FindRatingsByRestaurantId(restaurant);
             Console.WriteLine("\n*********************************************");
             Console.WriteLine($"{restaurant.Name}\n{restaurant.Address} {restaurant.Zip}");
-            Console.WriteLine($"Average rating: {decimal.Round(_restaurantBL.AverageRating(restaurant),2)}/5 stars");
-            Console.WriteLine("Recent Reviews");
+            decimal avg = decimal.Round(_restaurantBL.AverageRating(restaurant),2);
+            if ( avg == -1 )
+            {
+                Console.WriteLine("No ratings for this restaurant yet");
+            }else
+            {
+                Console.WriteLine($"Average rating: {avg}/5 stars");
+                Console.WriteLine("Recent Reviews: ");
+                PrintReview(reviews[1], false);
+            }
+            
             //2 or 3 recent reviews
             do{
                 Console.WriteLine("\n*********************************************");
@@ -304,7 +343,13 @@ namespace UI
                     break;
 
                     case "2":
-
+                        if(reviews.Count == 0){
+                            Console.WriteLine("No Reviews");
+                        }else{
+                            foreach(Review review in reviews){
+                                PrintReview(review, false);
+                            }
+                        }
                     break;
 
                     case "3":

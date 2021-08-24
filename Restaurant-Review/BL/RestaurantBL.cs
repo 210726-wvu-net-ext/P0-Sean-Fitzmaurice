@@ -41,6 +41,9 @@ namespace BL
             decimal numReviews = 0;
             decimal tot = 0;
             List<Review> reviews = _repo.FindRatingsByRestaurantId(restaurant);
+            if(reviews.Count == 0){
+                return -1;
+            }
             foreach(Review review in reviews)
             {
                 tot += review.Stars;
@@ -48,6 +51,18 @@ namespace BL
             }
             avg = tot/numReviews;
             return avg;
+        }
+        public List<Review> FindRatingsByRestaurantId(Restaurant restaurant)
+        {
+            return _repo.FindRatingsByRestaurantId(restaurant);
+        }
+
+        public List<Review> FindReviewsByCustomer(Customer customer)
+        {
+            return _repo.FindReviewsByCustomer(customer);
+        }
+        public Customer GetCustomerById(int Id){
+            return _repo.GetCustomerById(Id);
         }
 
     }
