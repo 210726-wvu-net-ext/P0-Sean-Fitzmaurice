@@ -5,34 +5,51 @@ using DL.Entities;
 using BL;
 using DL;
 using System.IO;
+using Serilog;
+using System;
 
 namespace UI
 {
     class Program
     {
+    /// <summary>
+    /// Program class is used to run the main menu and set up connection to DB
+    /// </summary>
         static void Main(string[] args)
         {
-            // logging
         
-            var configuaration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json")
-            .Build();
+            try
+            {
+                var configuaration = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("appsettings.json")
+                    .Build();
 
-        // add connection try catch
-        
-        string connectionString = configuaration.GetConnectionString("RestaurantDB");
-        DbContextOptions<RestaurantReviewContext> options = new DbContextOptionsBuilder<RestaurantReviewContext>()
-            .UseSqlServer(connectionString)
-            .Options;
-        
-        var context = new RestaurantReviewContext(options);
-        IMenu menu = new MainMenu(new RestaurantBL(new RestaurantRepo(context)));
-
-        //add try catch block
-        menu.Start();
+                
+                
 
 
+                string connectionString = configuaration.GetConnectionString("RestaurantDB");
+                DbContextOptions<RestaurantReviewContext> options = new DbContextOptionsBuilder<RestaurantReviewContext>()
+                    .UseSqlServer(connectionString)
+                    .Options;
+
+                var context = new RestaurantReviewContext(options);
+                IMenu menu = new MainMenu(new RestaurantBL(new RestaurantRepo(context)));
+
+                try
+                {
+                    menu.Start();
+                }
+                catch(Exception e)
+                {
+                    Log.Fatal(e, "Program Exit");
+                }
+                }
+            catch(Exception e)
+            {
+                Log.Fatal(e, "Program Exit");
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -32,6 +32,7 @@ namespace DL.Entities
                 entity.ToTable("Customer");
 
                 entity.Property(e => e.Email)
+                    .IsRequired()
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
@@ -46,6 +47,7 @@ namespace DL.Entities
                     .IsUnicode(false);
 
                 entity.Property(e => e.Phone)
+                    .IsRequired()
                     .HasMaxLength(14)
                     .IsUnicode(false);
             });
@@ -82,13 +84,13 @@ namespace DL.Entities
                     .WithMany(p => p.Reviews)
                     .HasForeignKey(d => d.CustomerId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Review__Customer__27C3E46E");
+                    .HasConstraintName("FK__Review__Customer__405A880E");
 
                 entity.HasOne(d => d.Restaurant)
                     .WithMany(p => p.Reviews)
                     .HasForeignKey(d => d.RestaurantId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Review__Restaura__28B808A7");
+                    .HasConstraintName("FK__Review__Restaura__414EAC47");
             });
 
             OnModelCreatingPartial(modelBuilder);

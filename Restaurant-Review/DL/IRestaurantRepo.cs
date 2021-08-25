@@ -11,9 +11,9 @@ namespace DL
 
         Customer AddCustomer(Customer user);
 
-        Restaurant SearchRestaurantsName(string name);
+        Customer GetCustomer(string name);
 
-        Customer SearchCustomers(string name);
+        List<Customer> SearchCustomers(string name);
 
         Review LeaveReview(Review review);
 
@@ -22,6 +22,20 @@ namespace DL
         List<Review> FindReviewsByCustomer(Customer customer);
         
         Customer GetCustomerById(int Id);
+
+        List<Restaurant> SearchRestaurantsName(string name);
+
+        List<Restaurant> SearchRestaurantsAddress(string Address);
+
+        List<Restaurant> SearchRestaurantsZip(int zip);
+
+        void DeleteReview(Models.Review review);
+
+        void DeleteUser(Models.Customer customer);
+
+        void DeleteRestaurant(Models.Restaurant restaurant);
+        
+        Review GetReviewById(int Id);
         
     }
 }

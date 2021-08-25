@@ -2,6 +2,7 @@ using System;
 using BL;
 using Models;
 using System.Collections.Generic;
+using Serilog;
 
 namespace UI
 {
@@ -12,6 +13,12 @@ namespace UI
         public MainMenu(IRestaurantBL bl)
         {
             _restaurantBL = bl;
+            Log.Logger=new LoggerConfiguration()
+                            .MinimumLevel.Debug()
+                            .WriteTo.Console()
+                            .WriteTo.File("../logs/petlogs.txt", rollingInterval:RollingInterval.Day)
+                            .CreateLogger();
+            Log.Information("UI begining");
             
         }
 
@@ -74,6 +81,8 @@ namespace UI
                     Console.WriteLine("Admin Access: ");
                     Console.WriteLine("[0] Exit");
                     Console.WriteLine("[1] User Search");
+                    Console.WriteLine("[2] Delete Restaurant");
+                    //Console.WriteLine("[3] Delete Review");
                     switch(Console.ReadLine())
                     {
                         case "0":
@@ -82,26 +91,93 @@ namespace UI
                         break;
 
                         case "1":
-                            Console.WriteLine("Enter name of customer: ");
-                            string name = Console.ReadLine();
-                            Customer searchedCustomer = AdminCustomerSearch(name);
-                            if(searchedCustomer.Name is null)
+                            string name = ValidInput("Enter Customer name: ");
+                            Customer searchedCustomer = CustomerListSelect(_restaurantBL.SearchCustomers(name));
+                            AdminUserMenu(searchedCustomer);
+                        break;
+
+                        case "2":
+                            Console.WriteLine("[0] Exit");
+                            Console.WriteLine("[1] Search Restaurants by name");
+                            Console.WriteLine("[2] Search Restaurants by address");
+                            Console.WriteLine("[3] Search Restaurants by zip");
+                            Restaurant restaurantToDelete;
+                            switch(Console.ReadLine())
                             {
-                                Console.WriteLine($"\n***{name}Not a username***");
-                            }else
-                            {
-                                Console.WriteLine($"{searchedCustomer.Name}: \nPhone: Number {searchedCustomer.Phone} \n Email: {searchedCustomer.Email}");
-                                List<Review> searchedCustomerReviews =_restaurantBL.FindReviewsByCustomer(searchedCustomer);
-                                Console.WriteLine("Most Recent Review:");
-                                PrintReview(searchedCustomerReviews[0], true);
-                                Console.WriteLine("Enter 1 to see all reviews from this customer, any other key input will return to admin menu");
-                                if(Console.ReadLine() == "1"){
-                                    foreach (Review review in searchedCustomerReviews){
-                                            PrintReview(review, true);
+
+                                case "0":
+                        
+                                break;
+                                case "1":
+                                    restaurantToDelete = RestaurantListSelect(_restaurantBL.SearchRestaurantsName(ValidInput("Enter Restaurant name: ")));
+                                    if(restaurantToDelete.Name != null){
+                                        AdminRestaurantMenu(restaurantToDelete);
                                     }
-                                }
+                                    
+                                break;
+
+                                case "2":
+                                    restaurantToDelete = RestaurantListSelect(_restaurantBL.SearchRestaurantsAddress(ValidInput("Enter Restaurant address/city: ")));
+                                    if(restaurantToDelete != null){
+                                        AdminRestaurantMenu(restaurantToDelete);
+                                    }
+                                break;
+
+                                case "3":
+                                bool valid = false;
+                                int zip;
+                                    do{
+                                        Console.WriteLine("Enter Restaurant zip: ");
+                                        if(int.TryParse(Console.ReadLine(), out zip))
+                                        {
+                                            valid = true;
+                                        }else
+                                        {
+                                            Console.WriteLine("Not a valid zip!");
+                                        }
+                                    }while(!valid);
+
+                                    
+                                    restaurantToDelete = RestaurantListSelect(_restaurantBL.SearchRestaurantsZip(zip));
+                                    if(restaurantToDelete.Name != null){
+                                        AdminRestaurantMenu(restaurantToDelete);
+                                    }
+                                break;
+
+                                default:
+                                    Console.WriteLine("\n***Not a valid command***");
+                                    Console.WriteLine("*********************************************");
+                                break;
                             }
                         break;
+
+                        /*case "3":
+                            int id;
+                            Review reviewToDelete;
+                            Console.WriteLine("Enter Id of review to be deleted");
+                            if(int.TryParse(Console.ReadLine(), out id))
+                            {
+                                reviewToDelete = _restaurantBL.GetReviewById(id);
+
+                                if(reviewToDelete.textReview is null){
+                                    Console.WriteLine("Not a valid review Id, leaving...");
+                                }else
+                                {
+                                PrintReview(reviewToDelete, true);
+                                Console.WriteLine("Are you sure you want to delete this review? Enter Password to continue");
+                                    if (Console.ReadLine() == CurrentCustomer.Pass){
+                                        _restaurantBL.DeleteReview(reviewToDelete);
+                                        Console.WriteLine("Review Deleted");
+                                    }
+                                }   
+                                
+                            }else
+                            {
+                                Console.WriteLine("Not a valid review Id, leaving...");
+                            }
+
+
+                        break;*/
 
                         default:
                             Console.WriteLine("\n***Not a valid command***");
@@ -118,7 +194,6 @@ namespace UI
                     Console.WriteLine("[2] Search Restaurants by name");
                     Console.WriteLine("[3] Search Restaurants by address");
                     Console.WriteLine("[4] Search Restaurants by zip");
-                    Console.WriteLine("[5] ");
                     Restaurant foundRestaurant;
                     
                     switch(Console.ReadLine())
@@ -133,7 +208,7 @@ namespace UI
                         break;
 
                         case "2":
-                            foundRestaurant = SearchRestaurantsName();
+                            foundRestaurant = RestaurantListSelect(_restaurantBL.SearchRestaurantsName(ValidInput("Enter Restaurant name: ")));
                             if(foundRestaurant.Name != null){
                                 restaurantMenu(foundRestaurant);
                             }
@@ -141,11 +216,31 @@ namespace UI
                         break;
 
                         case "3":
-                            //foundRestaurant = SearchRestaurantsZip();
+                            foundRestaurant = RestaurantListSelect(_restaurantBL.SearchRestaurantsAddress(ValidInput("Enter Restaurant address/city: ")));
+                            if(foundRestaurant.Name != null){
+                                restaurantMenu(foundRestaurant);
+                            }
                         break;
 
                         case "4":
-                            //foundRestaurant = SearchRestaurantsAdd();
+                        bool valid = false;
+                        int zip;
+                            do{
+                                Console.WriteLine("Enter Restaurant zip: ");
+                                if(int.TryParse(Console.ReadLine(), out zip))
+                                {
+                                    valid = true;
+                                }else
+                                {
+                                    Console.WriteLine("Not a valid zip!");
+                                }
+                            }while(!valid);
+
+                            
+                            foundRestaurant = RestaurantListSelect(_restaurantBL.SearchRestaurantsZip(zip));
+                            if(foundRestaurant.Name != null){
+                                restaurantMenu(foundRestaurant);
+                            }
                         break;
 
                         default:
@@ -155,13 +250,9 @@ namespace UI
                     }
                 }
             }
-            
-
-            //search for restaunt
-
-            //options to see reviews and leave reviews
 
         }
+
 
 
         //function to ensure null or whitespace values are not entered by user, Parameter message is the message which prompts input from the user
@@ -175,9 +266,126 @@ namespace UI
                 input = Console.ReadLine();
                 if(String.IsNullOrWhiteSpace(input)){
                     Console.WriteLine("\n***Entry Cannot be blank***");
+                }else if(input.Length > 100)
+                {
+                    Console.WriteLine("Entry cannot be longer than 100 characters");
                 }
+
             } while (String.IsNullOrWhiteSpace(input));
             return input;
+        }
+
+        public Restaurant RestaurantListSelect(List<Restaurant> list)
+        {
+            int len = list.Count;
+            int count = 1;
+            if (len == 1)
+            {
+                return list[0];
+            }else if (len < 1)
+            {
+                Console.WriteLine("No matching results");
+                return new Restaurant();
+            }else
+            {
+                Console.WriteLine($"Found {len} matching results, please select");
+                foreach(Restaurant restaurant in list)
+                {
+                    
+                    Console.WriteLine("*********************************************");
+                    Console.WriteLine($"Selection {count}: ");
+                    Console.WriteLine($"{restaurant.Name}\n{restaurant.Address} {restaurant.Zip}");
+                    Console.WriteLine("\n*********************************************");
+                    count++;
+                }
+                bool valid = false;
+                int select;
+                do{
+                    if(Int32.TryParse(Console.ReadLine(),out select))
+                    {
+                        if(select > 0 && select <= len){
+                            valid = true;
+                        }else
+                        {
+                            Console.WriteLine($"Not a valid selection, pick number between 1 and {len}");
+                        }
+                        
+                        
+                    }else
+                    {
+                        Console.WriteLine($"Not a valid selection, pick number between 1 and {len}");
+                    }
+                }while(!valid);
+                select = select -1;
+                Console.WriteLine("*********************************************");
+                Console.WriteLine("*********************************************");
+                try
+                {
+                    return list[select];
+                }
+                catch(IndexOutOfRangeException I)
+                {
+                    Log.Fatal(I, "Restaurant List select index was out of range");
+                }
+                return new Restaurant();
+                
+            }
+        }
+
+        public Customer CustomerListSelect(List<Customer> list)
+        {
+            int len = list.Count;
+            int count = 1;
+            if (len == 1)
+            {
+                return list[0];
+            }else if (len < 1)
+            {
+                Console.WriteLine("No matching results");
+                return new Customer();
+            }else
+            {
+                Console.WriteLine($"Found {len} matching results, please select");
+                foreach(Customer customer in list)
+                {
+                    
+                    Console.WriteLine("*********************************************");
+                    Console.WriteLine($"Selection {count}: ");
+                    Console.WriteLine($"{customer.Name}\n{customer.Phone} {customer.Email}");
+                    Console.WriteLine("\n*********************************************");
+                    count++;
+                }
+                bool valid = false;
+                int select;
+                do{
+                    if(Int32.TryParse(Console.ReadLine(),out select))
+                    {
+                        if(select > 0 && select <= len){
+                            valid = true;
+                        }else
+                        {
+                            Console.WriteLine($"Not a valid selection, pick number between 1 and {len}");
+                        }
+                        
+                        
+                    }else
+                    {
+                        Console.WriteLine($"Not a valid selection, pick number between 1 and {len}");
+                    }
+                }while(!valid);
+                select = select -1;
+                Console.WriteLine("*********************************************");
+                Console.WriteLine("*********************************************");
+                try
+                {
+                    return list[select];
+                }
+                catch(IndexOutOfRangeException I)
+                {
+                    Log.Fatal(I, "Customer List select index was out of range");
+                }
+                return new Customer();
+            }
         }
 
         public void PrintReview(Review review, bool adminView)
@@ -192,7 +400,7 @@ namespace UI
             }
             
             Console.WriteLine($"{decimal.Round(review.Stars,1)}/5 Stars");
-            if(review.textReview != null){
+            if(review.textReview != ""){
                 Console.WriteLine(review.textReview);
             }
             Console.WriteLine("\n*********************************************");
@@ -209,14 +417,23 @@ namespace UI
             {
                 if(decimal.TryParse(Console.ReadLine(), out rating))
                 {
-                    valid = true;
+                    if(rating >= 0 && rating <= 5 ){
+                        valid = true;
+                    }else
+                    {
+                        Console.WriteLine("Enter a Number between 0 and 5!");
+                    }
+                }else
+                {
+                    Console.WriteLine("Enter a Number between 0 and 5!");
                 }
             }while(!valid);
             Console.WriteLine("Leave a comment!");
             comment = Console.ReadLine();
+            
             if(String.IsNullOrWhiteSpace(comment))
             {
-                latestReview = new Review(rating, this.CurrentCustomer.Id, restaurant.Id);
+                latestReview = new Review(rating, this.CurrentCustomer.Id, restaurant.Id, "" );
             }else
             {
                 latestReview = new Review(rating, this.CurrentCustomer.Id, restaurant.Id, comment);
@@ -224,56 +441,109 @@ namespace UI
             _restaurantBL.LeaveReview(latestReview);
             Console.WriteLine($"Successfully left a review for {restaurant.Name}");
         }
-        
-        //Search Restaurants by name, returns a restaurant object mapped to values in database
-        public Restaurant SearchRestaurantsName()
-        {
-            string name = ValidInput("Enter name of Restaurant");
-            Restaurant foundRestaurant = _restaurantBL.SearchRestaurantsName(name);
-            if(foundRestaurant.Name is null){
-                Console.WriteLine($"\n***Restaurant: {name} was not found, please try seaching again, or add a new restaurant with 2***");
-            }else
-            {
-                Console.WriteLine($"Found {name}");
-            }
-            return foundRestaurant;
-        }
-        
-        /*public Restaurant SearchRestaurantsZip()
-        {
-
-        }
-        
-        public Restaurant SearchRestaurantsAdd()
-        {
-
-        }*/
 
         //Adds a new restaurant to the database by creating restaurant object and passing it on to BL
         public void AddRestaurant(){
             string name;
             string address;
             int zip;
+            bool valid = false;
             Restaurant restaurantToAdd;
             name = ValidInput("Enter Restaurants Name");
             //add input validation for address and zip
-            address = ValidInput("Enter Address");
-            zip = 12538;
+            address = ValidInput("Enter Address(NOT INCLUDING ZIP):");
+                    do{
+                        Console.WriteLine("Enter Restaurant zip: ");
+                        if(int.TryParse(Console.ReadLine(), out zip))
+                        {
+                            valid = true;
+                        }else
+                        {
+                            Console.WriteLine("Not a valid zip!");
+                        }
+                    }while(!valid);
+            List<Restaurant> possibleDuplicate = _restaurantBL.SearchRestaurantsName(name);
+            if(possibleDuplicate.Count > 0){
+                foreach(Restaurant restaurant in possibleDuplicate)
+                {
+                    if(restaurant.Name == name && restaurant.Address == address && restaurant.Zip == zip)
+                    {
+                        Console.WriteLine("Restaurant already registered");
+                        return;
+                    }
+                }
+            }
             restaurantToAdd = new Restaurant(name, address, zip);
             restaurantToAdd = _restaurantBL.AddRestaurant(restaurantToAdd);
+        }
+        
+        //returns false phone number is invalid
+        public bool ValidPhoneInput(string phone)
+        {
+                const string allowed = "1234567890-()";
+                
+                
+                foreach(char c in phone){
+                    if(!allowed.Contains(c.ToString())){
+                        Console.WriteLine("Invalid character in Phone Number");
+                        return false;
+                    }
+                    
+                }
+                return true;
         }
 
         //Adds a new customer to database database by creating restaurant object and passing it on to BL
         public void AddCustomer(){
             string name;
             string pass;
+            string pass2;
             string phone;
             string email;
+            bool valid = false;
             Customer latestCustomer;
-            name = ValidInput("Enter Name: ");
-            pass = ValidInput("Enter password: ");
-            phone = ValidInput("Enter phone number: ");
-            email = ValidInput("Enter email: ");
+            do
+            {
+                name = ValidInput("Enter Name: ");
+                if(_restaurantBL.GetCustomer(name).Name is null)
+                {
+                    valid = true;
+                }else
+                {
+                    Console.WriteLine("That Username is taken! please enter a different one");
+                }
+            }while(!valid);
+            valid = false;
+            do
+            {
+                pass = ValidInput("Enter password: ");
+                pass2 = ValidInput("Confirm Password: ");
+                if(pass == pass2)
+                {
+                    valid = true;
+                }else
+                {
+                    Console.WriteLine("Entered passwords were different!");
+                }
+            }while(!valid);
+            valid = false;
+            do
+            {
+                phone = ValidInput("Enter phone number: ");
+                valid = ValidPhoneInput(phone);
+            }while(!valid);
+            valid = false;
+            do
+            {
+                email = ValidInput("Enter email: ");
+                if(email.Contains("@") && email.Contains(".")){
+                    valid = true;
+                }else
+                {
+                    Console.WriteLine("Please enter a valid email address!");
+                }
+            }while(!valid);
+            
             
             latestCustomer = new Customer(name, pass, email, phone, null);
             latestCustomer = _restaurantBL.AddCustomer(latestCustomer);
@@ -289,14 +559,13 @@ namespace UI
             string pass;
             name = ValidInput("Enter username: ");
             
-            this.CurrentCustomer = _restaurantBL.SearchCustomers(name);
+            this.CurrentCustomer = _restaurantBL.GetCustomer(name);
 
             if(this.CurrentCustomer.Name is null){
                 Console.WriteLine($"{name} is not a username");
             }else
             {
-                Console.WriteLine("Enter Password: ");
-                pass = Console.ReadLine();
+                pass = ValidInput("Enter Password:: ");
                 if(pass == this.CurrentCustomer.Pass){
                     return false;
                 }
@@ -305,14 +574,6 @@ namespace UI
             return true;
         }
 
-        //Admin search of a customer
-        public Customer AdminCustomerSearch(string name)
-        {
-
-
-            Customer foundCustomer = _restaurantBL.SearchCustomers(name);
-            return foundCustomer;
-        }
         //Menu for once you find restaurant
         public void restaurantMenu(Restaurant restaurant){
             bool repeat = true;
@@ -328,11 +589,19 @@ namespace UI
             {
                 Console.WriteLine($"Average rating: {avg}/5 stars");
                 Console.WriteLine("Recent Reviews: ");
-                PrintReview(reviews[1], false);
+                try
+                {
+                    PrintReview(reviews[0], false);
+                }
+                catch(IndexOutOfRangeException I)
+                {
+                    Log.Fatal(I, "Index was out of bounds when printing recent review");
+                }
             }
             
-            //2 or 3 recent reviews
+            
             do{
+                reviews = _restaurantBL.FindRatingsByRestaurantId(restaurant);
                 Console.WriteLine("\n*********************************************");
                 Console.WriteLine("[1] Leave Review for this restaurant");
                 Console.WriteLine("[2] See all reviews for this restaurant");
@@ -357,13 +626,109 @@ namespace UI
                     break;
 
                     default:
-
+                            Console.WriteLine("\n***Not a valid command***");
+                            Console.WriteLine("*********************************************");
                     break;
 
                 }
 
             }while(repeat);
-        }   
+        }
 
+        public void AdminUserMenu(Customer searchedCustomer)
+        {
+            if(searchedCustomer.Name is null)
+            {
+                Console.WriteLine($"\n***Not a username***");
+            }else
+            {
+                Console.WriteLine($"{searchedCustomer.Name}: \nID: {searchedCustomer.Id}\nPhone Number: {searchedCustomer.Phone} \n Email: {searchedCustomer.Email}");
+                List<Review> searchedCustomerReviews =_restaurantBL.FindReviewsByCustomer(searchedCustomer);
+                Console.WriteLine("Most Recent Review:");
+                if(searchedCustomerReviews.Count > 0){
+                    PrintReview(searchedCustomerReviews[0], true);
+                }else
+                {
+                    Console.WriteLine("User has not left any reviews");
+                }
+                
+                bool repeat = true;
+                while(repeat){
+                    Console.WriteLine("[0] Exit");
+                    Console.WriteLine("[1] See all reviews by this user");
+                    Console.WriteLine("[2] Delete this user");
+                    switch(Console.ReadLine()){
+                    case "0":
+                        repeat = false;
+                    break;
+
+                    case "1":
+                        foreach (Review review in searchedCustomerReviews){
+                                PrintReview(review, true);
+                        }
+                    break;
+                    case "2":
+                        if(searchedCustomer.Id == this.CurrentCustomer.Id)
+                        {
+                            Console.WriteLine("You cannot delete this account from itself");
+                        }else
+                        {
+                            Console.WriteLine("Enter Password to continue");
+                            if (Console.ReadLine() == CurrentCustomer.Pass){
+                                int id;
+                                Console.WriteLine("Are you sure you want to delete this account and all it's reviews? Enter the ID of the account to be deleted to confirm");
+                                if(int.TryParse(Console.ReadLine(), out id))
+                                {
+                                    if(id == searchedCustomer.Id){
+                                        _restaurantBL.DeleteUser(searchedCustomer);
+                                        repeat = false;
+                                        Console.WriteLine("User Deleted");
+                                    }else
+                                    {
+                                        Console.WriteLine("Id does not match, aborting delete...");
+                                    }   
+                                    
+                                }else
+                                {
+                                    Console.WriteLine("Id does not match, aborting delete...");
+                                }
+                                    
+                            }
+                        }
+                    break;
+
+                    default:
+                        Console.WriteLine("\n***Not a valid command***");
+                        Console.WriteLine("*********************************************");
+                    break;
+                    }
+                }
+            }
+        }
+        public void AdminRestaurantMenu(Restaurant restaurant)
+        {
+            Console.WriteLine("\n*********************************************");
+            Console.WriteLine($"ID:{restaurant.Id}\n{restaurant.Name}\n{restaurant.Address} {restaurant.Zip}");
+            Console.WriteLine("Enter Password to continue");
+            if (Console.ReadLine() == CurrentCustomer.Pass){
+                int id;
+                Console.WriteLine("Are you sure you want to delete this restaurant and all it's reviews? Enter the ID of the restaurant to be deleted to confirm");
+                if(int.TryParse(Console.ReadLine(), out id))
+                {
+                    if(id == restaurant.Id){
+                        _restaurantBL.DeleteRestaurant(restaurant);
+                        Console.WriteLine("Restaurant Deleted");
+                    }else
+                    {
+                        Console.WriteLine("Id does not match, aborting delete...");
+                    }   
+                    
+                }else
+                {
+                    Console.WriteLine("Id does not match, aborting delete...");
+                }
+                    
+            }
+        }
     }
 }

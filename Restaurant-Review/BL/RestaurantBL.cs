@@ -1,6 +1,9 @@
 using Models;
 using DL;
 using System.Collections.Generic;
+using System.IO;
+using System;
+using Serilog;
 
 namespace BL
 {
@@ -22,12 +25,7 @@ namespace BL
             return _repo.AddRestaurant(restaurant);
         }
 
-        public Restaurant SearchRestaurantsName(string name)
-        {
-            return _repo.SearchRestaurantsName(name);
-        }
-
-        public Customer SearchCustomers(string name)
+        public List<Customer> SearchCustomers(string name)
         {
             return _repo.SearchCustomers(name);
         }
@@ -37,7 +35,7 @@ namespace BL
         }
 
         public decimal AverageRating(Restaurant restaurant){
-            decimal avg;
+            decimal avg = 0;
             decimal numReviews = 0;
             decimal tot = 0;
             List<Review> reviews = _repo.FindRatingsByRestaurantId(restaurant);
@@ -49,7 +47,13 @@ namespace BL
                 tot += review.Stars;
                 numReviews += 1;
             }
-            avg = tot/numReviews;
+            try{
+                avg = tot/numReviews;
+            }
+            catch (ArithmeticException a)
+            {
+                Log.Fatal(a, "Program Exit");
+            }
             return avg;
         }
         public List<Review> FindRatingsByRestaurantId(Restaurant restaurant)
@@ -61,9 +65,47 @@ namespace BL
         {
             return _repo.FindReviewsByCustomer(customer);
         }
-        public Customer GetCustomerById(int Id){
+
+        public Customer GetCustomerById(int Id)
+        {
             return _repo.GetCustomerById(Id);
         }
 
+        public List<Restaurant> SearchRestaurantsName(string name)
+        {
+            return _repo.SearchRestaurantsName(name);
+        }
+
+        public List<Restaurant> SearchRestaurantsAddress(string address)
+        {
+            return _repo.SearchRestaurantsAddress(address);
+        }
+
+        public List<Restaurant> SearchRestaurantsZip(int zip)
+        {
+            return _repo.SearchRestaurantsZip(zip);
+        }
+
+        public void DeleteReview(Models.Review review)
+        {
+            _repo.DeleteReview(review);
+        }
+
+        public void DeleteUser(Models.Customer customer)
+        {
+            _repo.DeleteUser(customer);
+        }
+        
+        public void DeleteRestaurant(Models.Restaurant restaurant)
+        {
+            _repo.DeleteRestaurant(restaurant);
+        }
+        public Customer GetCustomer(string name){
+            return _repo.GetCustomer(name);
+        }
+
+        public Review GetReviewById(int Id){
+            return _repo.GetReviewById(Id);
+        }
     }
 }
