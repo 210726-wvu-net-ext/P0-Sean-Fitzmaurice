@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 namespace DL
 {
+    /// <summary>
+    /// Interface for the Repo
+    /// </summary>
     public interface IRestaurantRepo
     {
         

@@ -1,6 +1,10 @@
 using System;
 
 namespace Models{
+
+    /// <summary>
+    /// Customer model
+    /// </summary>
     public class Customer{
         public Customer(){}
 

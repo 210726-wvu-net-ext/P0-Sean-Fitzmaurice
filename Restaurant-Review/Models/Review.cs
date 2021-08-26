@@ -1,6 +1,9 @@
 using System;
 
 namespace Models{
+    /// <summary>
+    /// Review model
+    /// </summary>
     public class Review {
         public Review(){}
 
@@ -18,11 +21,7 @@ namespace Models{
             this.CustomerId = customer;
             this.RestaurantId = restaurant;
         }
-        /*public Review(decimal stars, int customer, int restaurant){
-            this.Stars = stars; 
-            this.CustomerId = customer;
-            this.RestaurantId = restaurant;
-        }*/
+
 
         public int Id{ get; set; }
         public int CustomerId{ get; set; }

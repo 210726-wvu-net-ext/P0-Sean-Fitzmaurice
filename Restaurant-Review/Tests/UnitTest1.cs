@@ -25,8 +25,7 @@ namespace Tests
             int expected = 1;
             int actual = testReview.Id;
             Assert.Equal(expected,actual);
-            Console.WriteLine("Running");
-            
         }
+
     }
 }

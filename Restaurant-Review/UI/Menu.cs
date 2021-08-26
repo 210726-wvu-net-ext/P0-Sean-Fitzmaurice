@@ -6,6 +6,9 @@ using Serilog;
 
 namespace UI
 {
+    /// <summary>
+    /// Menu is the main class to run the program through, it passes users commands to the BL
+    /// </summary>
     public class MainMenu : IMenu
     {
         public IRestaurantBL _restaurantBL;
@@ -82,7 +85,7 @@ namespace UI
                     Console.WriteLine("[0] Exit");
                     Console.WriteLine("[1] User Search");
                     Console.WriteLine("[2] Delete Restaurant");
-                    //Console.WriteLine("[3] Delete Review");
+                    
                     switch(Console.ReadLine())
                     {
                         case "0":
@@ -151,33 +154,7 @@ namespace UI
                             }
                         break;
 
-                        /*case "3":
-                            int id;
-                            Review reviewToDelete;
-                            Console.WriteLine("Enter Id of review to be deleted");
-                            if(int.TryParse(Console.ReadLine(), out id))
-                            {
-                                reviewToDelete = _restaurantBL.GetReviewById(id);
 
-                                if(reviewToDelete.textReview is null){
-                                    Console.WriteLine("Not a valid review Id, leaving...");
-                                }else
-                                {
-                                PrintReview(reviewToDelete, true);
-                                Console.WriteLine("Are you sure you want to delete this review? Enter Password to continue");
-                                    if (Console.ReadLine() == CurrentCustomer.Pass){
-                                        _restaurantBL.DeleteReview(reviewToDelete);
-                                        Console.WriteLine("Review Deleted");
-                                    }
-                                }   
-                                
-                            }else
-                            {
-                                Console.WriteLine("Not a valid review Id, leaving...");
-                            }
-
-
-                        break;*/
 
                         default:
                             Console.WriteLine("\n***Not a valid command***");
@@ -275,6 +252,7 @@ namespace UI
             return input;
         }
 
+        //Select restaurant from variable length list, returns selected customer
         public Restaurant RestaurantListSelect(List<Restaurant> list)
         {
             int len = list.Count;
@@ -332,6 +310,7 @@ namespace UI
             }
         }
 
+        //select customer from variable length list, returns selected customer
         public Customer CustomerListSelect(List<Customer> list)
         {
             int len = list.Count;
@@ -388,6 +367,7 @@ namespace UI
             }
         }
 
+        //function to print review review is review being printed adminview displays ID if true
         public void PrintReview(Review review, bool adminView)
         {
             Console.WriteLine("*********************************************\n");
@@ -450,7 +430,7 @@ namespace UI
             bool valid = false;
             Restaurant restaurantToAdd;
             name = ValidInput("Enter Restaurants Name");
-            //add input validation for address and zip
+            
             address = ValidInput("Enter Address(NOT INCLUDING ZIP):");
                     do{
                         Console.WriteLine("Enter Restaurant zip: ");
@@ -477,7 +457,7 @@ namespace UI
             restaurantToAdd = _restaurantBL.AddRestaurant(restaurantToAdd);
         }
         
-        //returns false phone number is invalid
+        //returns false if phone number is invalid
         public bool ValidPhoneInput(string phone)
         {
                 const string allowed = "1234567890-()";
@@ -574,7 +554,7 @@ namespace UI
             return true;
         }
 
-        //Menu for once you find restaurant
+        //Menu for once you find restaurant, param restaurant is restaurant being viewed
         public void restaurantMenu(Restaurant restaurant){
             bool repeat = true;
             List<Review> reviews;
@@ -635,6 +615,8 @@ namespace UI
             }while(repeat);
         }
 
+
+        //menu for viewing users as admin parameter searchedCustomer is customer being viewed
         public void AdminUserMenu(Customer searchedCustomer)
         {
             if(searchedCustomer.Name is null)
@@ -705,6 +687,8 @@ namespace UI
                 }
             }
         }
+
+        //View a restaurant as an admin Parameter restaurant is restaurant to be viewed
         public void AdminRestaurantMenu(Restaurant restaurant)
         {
             Console.WriteLine("\n*********************************************");

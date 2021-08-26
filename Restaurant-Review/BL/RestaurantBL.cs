@@ -7,6 +7,9 @@ using Serilog;
 
 namespace BL
 {
+    /// <summary>
+    /// Bl layer handels translation between UI and DL layer, also does some calculation when neccessary
+    /// </summary>
     public class RestaurantBL : IRestaurantBL
     {
         private IRestaurantRepo _repo;

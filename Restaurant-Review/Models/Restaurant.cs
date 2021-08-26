@@ -1,8 +1,13 @@
 using System;
 
 namespace Models{
+    /// <summary>
+    /// Restaurant Model
+    /// </summary>
     public class Restaurant {
+    
         public Restaurant(){}
+
         public Restaurant(string name, string address, int zip){
             this.Zip = zip;
             this.Address = address;

@@ -6,6 +6,9 @@ using System;
 
 namespace DL
 {
+    /// <summary>
+    /// Repo class handles all interation with the database and converting it's information into models for c sharp
+    /// </summary>
     public class RestaurantRepo : IRestaurantRepo
     {
         private RestaurantReviewContext _context;
