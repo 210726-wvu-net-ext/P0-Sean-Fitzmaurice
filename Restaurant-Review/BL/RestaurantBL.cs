@@ -8,7 +8,7 @@ using Serilog;
 namespace BL
 {
     /// <summary>
-    /// Bl layer handels translation between UI and DL layer, also does some calculation when neccessary
+    /// BL handels translation between UI and DL layer. It performans additional cacluations on the data when returning from DL to UI. For example, calcuating the average rating of reviews for a restaurant. 
     /// </summary>
     public class RestaurantBL : IRestaurantBL
     {
