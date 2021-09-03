@@ -254,7 +254,7 @@ namespace UI
 
 
         /// <summary>
-        /// Present user with list of restauarants to select from
+        /// Select restaurant from variable length list, returns selected customer
         /// </summary>
         /// <param name="list">list of restaurants to select from</param>
         /// <returns>returns object of selected restaurant</returns>

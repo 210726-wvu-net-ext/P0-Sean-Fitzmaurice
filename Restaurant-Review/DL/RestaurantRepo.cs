@@ -7,7 +7,7 @@ using System;
 namespace DL
 {
     /// <summary>
-    /// Repo class handles all interation with the database and converting it's information into models for c sharp
+    /// Repo class handles all interactions with the EF DBContext and converting it's information into models for c sharp. Exception handling is also performed.
     /// </summary>
     public class RestaurantRepo : IRestaurantRepo
     {
