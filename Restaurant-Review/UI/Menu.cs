@@ -252,13 +252,12 @@ namespace UI
             return input;
         }
 
-        ///<summary>
-        /// Select restaurant from variable length list, returns selected restaurant
-        /// <param>
-        /// List - list of restaurants to select from
-        /// <param>
+
         /// <summary>
-    
+        /// Present user with list of restauarants to select from
+        /// </summary>
+        /// <param name="list">list of restaurants to select from</param>
+        /// <returns>returns object of selected restaurant</returns>
         public Restaurant RestaurantListSelect(List<Restaurant> list)
         {
             int len = list.Count;
