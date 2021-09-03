@@ -78,7 +78,11 @@ namespace DL
 
             return restaurant;
         }
-        
+        /// <summary>
+        /// find all ratings for a given restuarant
+        /// </summary>
+        /// <param name="restaurant">restaurant to find reviews</param>
+        /// <returns>list of review objects for given restaurant</returns>
         public List<Models.Review> FindRatingsByRestaurantId(Models.Restaurant restaurant){
             List<Models.Review> list = _context.Reviews.Select(
                 Review => new Models.Review(Review.Id, Review.Stars, Review.CustomerId, Review.RestaurantId, Review.Comment)

@@ -36,7 +36,11 @@ namespace BL
         public Review LeaveReview(Review review){
             return _repo.LeaveReview(review);
         }
-
+        /// <summary>
+        /// calculates average rating (stars) of a restaurant
+        /// </summary>
+        /// <param name="restaurant">restaurant for reviews to be calculated</param>
+        /// <returns>decimal of average rating</returns>
         public decimal AverageRating(Restaurant restaurant){
             decimal avg = 0;
             decimal numReviews = 0;
